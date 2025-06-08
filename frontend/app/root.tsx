@@ -6,7 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-
+import { AuthProvider } from "./provider/auth-context";
 import type { Route } from "./+types/root";
 import "./app.css";
 import ReactQueryProvider from "./provider/react-query-provider";
@@ -45,7 +45,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <ReactQueryProvider>
+      <AuthProvider>
         <Outlet />;
+        </AuthProvider>
     </ReactQueryProvider>
 
 

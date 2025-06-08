@@ -22,8 +22,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useSignUpMutation } from '@/hooks/use-auth';
+import { toast } from 'sonner';
 
-type SignUpFormData = z.infer<typeof signUpSchema>;
+export type SignUpFormData = z.infer<typeof signUpSchema>;
 
 const SignUp = () => {
   const form = useForm<SignUpFormData>({
@@ -36,12 +38,21 @@ const SignUp = () => {
     },
   });
 
+  const {mutate,isPending}=useSignUpMutation();
+
   const navigate = useNavigate();
 
   const handleSubmit = (values: SignUpFormData) => {
-    console.log(values);
-    // Implement signup logic here (API call etc.)
-    navigate('/dashboard');
+    mutate(values,{
+      onSuccess:()=>{
+        toast.success("Account created successfully!");
+      },
+      onError: (error) => {
+        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+        console.error("Sign up error:", errorMessage);
+        toast.error(error instanceof Error ? error.message : "An error occurred");
+      },
+    })
   };
 
   return (
@@ -114,7 +125,8 @@ const SignUp = () => {
                 )}
               />
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? 'Signing Up...' : 'Sign Up'}
                 Sign Up
               </Button>
             </form>
