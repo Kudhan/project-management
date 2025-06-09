@@ -1,13 +1,10 @@
-
-
-import User from '../models/User.js'; // ✅ Make sure .js is included if using ES Modules
-import bcrypt from 'bcrypt';
+import User from "../models/user.js";
+import bcrypt from "bcryptjs";
 
 const signupUser = async (req, res) => {
   try {
     const { email, name, password } = req.body;
-
-    const existingUser = await User.findOne({ email }); // ✅ Returns a single user or null
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
       return res.status(400).json({
@@ -16,15 +13,8 @@ const signupUser = async (req, res) => {
       });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // ✅ Correct usage of create
-    const newUser = await User.create({
-      email,
-      password: hashedPassword,
-      name
-    });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({ email, name, password: hashedPassword });
 
     res.status(201).json({
       message: "Verification email sent successfully",
@@ -38,7 +28,6 @@ const signupUser = async (req, res) => {
         is2FAEnabled: newUser.is2FAEnabled
       }
     });
-
   } catch (err) {
     console.error("Error during signup:", err);
     res.status(500).json({
@@ -48,17 +37,16 @@ const signupUser = async (req, res) => {
   }
 };
 
-
 const signinUser = async (req, res) => {
-    try{
+  try {
+    // Your signin logic
+  } catch (err) {
+    console.error("Error during signin:", err);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: err.message
+    });
+  }
+};
 
-    }catch(err){
-        console.error("Error during signin:", err);
-        res.status(500).json({
-            message: "Internal Server Error",
-            error: err.message
-        });
-    }
-}
-
-export {signupUser,signinUser}
+export { signupUser, signinUser };

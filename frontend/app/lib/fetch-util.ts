@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import type { AxiosRequestConfig } from "axios";
 
 // Base URL from environment or fallback
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+const BASE_URL ="http://localhost:5000/api";
 
 // Create Axios instance
 const api = axios.create({

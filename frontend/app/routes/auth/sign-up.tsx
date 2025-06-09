@@ -127,7 +127,6 @@ const SignUp = () => {
 
               <Button type="submit" className="w-full" disabled={isPending}>
                 {isPending ? 'Signing Up...' : 'Sign Up'}
-                Sign Up
               </Button>
             </form>
           </Form>
