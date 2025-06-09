@@ -42,18 +42,21 @@ const SignUp = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (values: SignUpFormData) => {
-    mutate(values,{
-      onSuccess:()=>{
-        toast.success("Account created successfully!");
-      },
-      onError: (error) => {
-        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-        console.error("Sign up error:", errorMessage);
-        toast.error(error instanceof Error ? error.message : "An error occurred");
-      },
-    })
-  };
+const handleSubmit = (values: SignUpFormData) => {
+  const { name, email, password } = values; // ✅ Strip confirmPassword
+
+  mutate({ name, email, password }, {
+    onSuccess: () => {
+      toast.success("Account created successfully!");
+    },
+    onError: (error) => {
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      console.error("Sign up error:", errorMessage);
+      toast.error(errorMessage);
+    },
+  });
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/50 px-4 py-12">
