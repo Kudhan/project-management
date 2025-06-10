@@ -10,3 +10,9 @@ export const useSignUpMutation = () => {
     mutationFn: (data: SignUpPayload) => postData("/auth/sign-up", data),
   });
 };
+
+export const useVerifyEmailMutation=()=>{
+  return useMutation({
+    mutationFn:(data:{token:string})=> postData("/auth/verify-email",data),
+  });
+}

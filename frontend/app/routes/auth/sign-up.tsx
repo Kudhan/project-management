@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { signUpSchema } from '@/lib/schema'; // Make sure this schema includes confirmPassword as discussed
+import { signUpSchema } from '@/lib/schema';
 import {
   Card,
   CardContent,
@@ -20,8 +20,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useSignUpMutation } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 
@@ -38,25 +37,26 @@ const SignUp = () => {
     },
   });
 
-  const {mutate,isPending}=useSignUpMutation();
-
+  const { mutate, isPending } = useSignUpMutation();
   const navigate = useNavigate();
 
-const handleSubmit = (values: SignUpFormData) => {
-  const { name, email, password } = values; // ✅ Strip confirmPassword
+  const handleSubmit = (values: SignUpFormData) => {
+    const { name, email, password } = values; // Strip confirmPassword
 
-  mutate({ name, email, password }, {
-    onSuccess: () => {
-      toast.success("Account created successfully!");
-    },
-    onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-      console.error("Sign up error:", errorMessage);
-      toast.error(errorMessage);
-    },
-  });
-};
-
+    mutate({ name, email, password }, {
+      onSuccess: () => {
+        toast.success("Email Verification Sent", {
+          description: "Check your email for a verification link. Don’t forget to check your spam folder.",
+        });
+        navigate("/sign-in"); // Optionally redirect
+      },
+      onError: (error) => {
+        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+        console.error("Sign up error:", errorMessage);
+        toast.error(errorMessage);
+      },
+    });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/50 px-4 py-12">

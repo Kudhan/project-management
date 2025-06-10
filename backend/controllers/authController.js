@@ -3,10 +3,18 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Verification from "../models/verification.js";
 import { sendEmail } from "../libs/send-email.js";
+import aj from "../libs/arcjet.js";
 
 const signupUser = async (req, res) => {
   try {
     const { email, name, password } = req.body;
+
+    const decision = await aj.protect(req, { email }); // Deduct 5 tokens from the bucket
+    console.log("Arcjet decision", decision.isDenied());
+
+    if (decision.isDenied() && decision.reason.isRateLimit()) {
+      return res.status(403).json({ message: "Invalid email address" });
+    }
 
     // Validate required fields
     if (!email || !name || !password) {
@@ -32,7 +40,7 @@ const signupUser = async (req, res) => {
     });
 
     const verificationToken = jwt.sign(
-      { userId: newUser._id, property: "emailVerification" },
+      { userId: newUser._id, purpose: "email-verification" },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -54,7 +62,6 @@ const signupUser = async (req, res) => {
     try {
       await sendEmail(newUser.email, emailSubject, emailBody);
     } catch (error) {
-      // Optional: clean up
       await Verification.deleteOne({ userId: newUser._id });
       await User.deleteOne({ _id: newUser._id });
 
@@ -98,4 +105,50 @@ const signinUser = async (req, res) => {
   }
 };
 
-export { signupUser, signinUser };
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!payload) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { userId, purpose } = payload;
+
+    if (purpose !== "email-verification") {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const verification = await Verification.findOne({ userId, token });
+
+    if (!verification) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (verification.expiresAt < new Date()) {
+      return res.status(401).json({ message: "Token expired" });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!user.isVerified) {
+      user.isVerified = true;
+      await user.save();
+      return res.status(200).json({ message: "Email Verified Successfully" });
+    }
+
+    return res.status(400).json({ message: "Email already verified" });
+
+  } catch (error) {
+    console.error("Error during email verification:", error);
+    res.status(500).json({ message: "Error Occurred" });
+  }
+};
+
+export { signupUser, signinUser, verifyEmail };
