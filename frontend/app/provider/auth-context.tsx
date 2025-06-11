@@ -1,11 +1,14 @@
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
+import { publicRoutes } from "@/lib";
+import { queryClient } from "./react-query-provider";
 import type { User } from "@/routes/types";
-import React, { createContext, useContext, useState } from "react";
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (data: { user: User; token: string }) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -14,20 +17,63 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // start loading by default
 
-  const login = async (email: string, password: string) => {
-    console.log("Logging in with", email, password);
-    // Simulated login logic
-    setUser({ email } as User); // cast for now — replace with real logic
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const isPublicRoute = publicRoutes.includes(currentPath);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const userInfo = localStorage.getItem("user");
+
+        if (userInfo) {
+          setUser(JSON.parse(userInfo));
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+
+          if (!isPublicRoute) {
+            navigate("/sign-in");
+          }
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [currentPath, navigate, isPublicRoute]);
+
+  useEffect(()=>{
+    const handleLogout=()=>{
+      logout();
+      navigate("/sign-in");
+    };
+
+    window.addEventListener("forceLogout",handleLogout);
+    return ()=> window.removeEventListener("forceLogout",handleLogout);
+  },[]);
+
+  const login = async (data: { user: User; token: string }) => {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    setUser(data.user);
     setIsAuthenticated(true);
-    setIsLoading(false);
   };
 
   const logout = async () => {
-    console.log("Logging out");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
     setIsAuthenticated(false);
+    queryClient.clear();
+    navigate("/sign-in");
   };
 
   const values: AuthContextType = {
@@ -43,10 +89,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-
   return context;
 };

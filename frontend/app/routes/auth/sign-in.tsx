@@ -1,8 +1,13 @@
-import { signInSchema } from '@/lib/schema';
 import React from 'react';
-import { z } from 'zod';
 import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'sonner';
+
+import { signInSchema } from '@/lib/schema';
+import { useLoginMutation } from '@/hooks/use-auth';
+
 import {
   Card,
   CardContent,
@@ -10,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+
 import {
   Form,
   FormControl,
@@ -18,15 +24,14 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom'; // <-- fix import here
 
-type SigninFormData = z.infer<typeof signInSchema>;
+type SignInFormData = z.infer<typeof signInSchema>;
 
 const SignIn = () => {
-  const form = useForm<SigninFormData>({
+  const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: '',
@@ -34,9 +39,22 @@ const SignIn = () => {
     },
   });
 
-  const handleSubmit = (values: SigninFormData) => {
-    console.log(values);
-    // Handle auth logic here
+  const navigate = useNavigate();
+  const { mutate, isPending } = useLoginMutation();
+
+  const handleSubmit = (values: SignInFormData) => {
+    mutate(values, {
+      onSuccess: (data) => {
+        toast.success('Login successful!');
+        navigate('/dashboard'); // 🔁 Change this to your post-login route
+      },
+      onError: (error: any) => {
+        const errorMessage =
+          error?.response?.data?.message || 'An unexpected error occurred';
+        console.error('Login error:', error);
+        toast.error(errorMessage);
+      },
+    });
   };
 
   return (
@@ -50,12 +68,11 @@ const SignIn = () => {
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
+
         <CardContent className="pt-4">
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-6"
-            >
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+              {/* Email Field */}
               <FormField
                 control={form.control}
                 name="email"
@@ -63,13 +80,14 @@ const SignIn = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="you@example.com" {...field} />
+                      <Input autoFocus placeholder="you@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
+              {/* Password Field */}
               <FormField
                 control={form.control}
                 name="password"
@@ -84,7 +102,7 @@ const SignIn = () => {
                 )}
               />
 
-              {/* Forgot Password Link */}
+              {/* Forgot Password */}
               <div className="text-right text-sm">
                 <Link
                   to="/forget-password"
@@ -94,8 +112,9 @@ const SignIn = () => {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full">
-                Sign In
+              {/* Submit Button */}
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
           </Form>
@@ -103,10 +122,7 @@ const SignIn = () => {
           {/* Footer */}
           <div className="mt-6 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link
-              to="/sign-up"
-              className="font-medium text-primary hover:underline"
-            >
+            <Link to="/sign-up" className="font-medium text-primary hover:underline">
               Sign up
             </Link>
           </div>
