@@ -4,19 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { signUpSchema } from '@/lib/schema';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  Card, CardContent, CardDescription, CardHeader, CardTitle
 } from '@/components/ui/card';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -41,19 +32,20 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   const handleSubmit = (values: SignUpFormData) => {
-    const { name, email, password } = values; // Strip confirmPassword
+    const { confirmPassword, ...payload } = values; // ✅ Exclude confirmPassword
 
-    mutate({ name, email, password }, {
+    mutate(payload, {
       onSuccess: () => {
         toast.success("Email Verification Sent", {
           description: "Check your email for a verification link. Don’t forget to check your spam folder.",
         });
-        navigate("/sign-in"); // Optionally redirect
+        navigate("/sign-in");
       },
-      onError: (error) => {
-        const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-        console.error("Sign up error:", errorMessage);
-        toast.error(errorMessage);
+      onError: (error: any) => {
+        const message =
+          error?.response?.data?.message || "Something went wrong. Please try again.";
+        toast.error(message);
+        console.error("Sign up error:", error);
       },
     });
   };
@@ -85,7 +77,6 @@ const SignUp = () => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="email"
@@ -99,7 +90,6 @@ const SignUp = () => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="password"
@@ -113,7 +103,6 @@ const SignUp = () => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="confirmPassword"
@@ -127,7 +116,6 @@ const SignUp = () => {
                   </FormItem>
                 )}
               />
-
               <Button type="submit" className="w-full" disabled={isPending}>
                 {isPending ? 'Signing Up...' : 'Sign Up'}
               </Button>

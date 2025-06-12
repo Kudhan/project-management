@@ -96,7 +96,8 @@ const signupUser = async (req, res) => {
 const signinUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    // Include password explicitly because of select:false in schema
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return res.status(400).json({ message: "Invalid Email Or Password" });
@@ -165,6 +166,7 @@ const signinUser = async (req, res) => {
     });
   }
 };
+
 
 
 const verifyEmail = async (req, res) => {
