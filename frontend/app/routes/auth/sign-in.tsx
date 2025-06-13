@@ -27,6 +27,7 @@ import {
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/provider/auth-context';
 
 type SignInFormData = z.infer<typeof signInSchema>;
 
@@ -41,10 +42,12 @@ const SignIn = () => {
 
   const navigate = useNavigate();
   const { mutate, isPending } = useLoginMutation();
+  const {login} = useAuth();
 
   const handleSubmit = (values: SignInFormData) => {
     mutate(values, {
       onSuccess: (data) => {
+        login(data);
         toast.success('Login successful!');
         navigate('/dashboard'); // 🔁 Change this to your post-login route
       },
@@ -133,3 +136,4 @@ const SignIn = () => {
 };
 
 export default SignIn;
+

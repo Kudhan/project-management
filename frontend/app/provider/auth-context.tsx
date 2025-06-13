@@ -9,6 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (data: { user: User; token: string }) => Promise<void>;
+
   logout: () => Promise<void>;
 }
 
