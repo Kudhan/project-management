@@ -24,6 +24,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+// routes/types/index.ts
+
+export * from '../types/index';
+
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -47,7 +51,8 @@ const SignIn = () => {
   const handleSubmit = (values: SignInFormData) => {
     mutate(values, {
       onSuccess: (data) => {
-        login(data);
+        const { user, token } = data as { user: User; token: string };
+  login({ user, token });
         toast.success('Login successful!');
         navigate('/dashboard'); // 🔁 Change this to your post-login route
       },
