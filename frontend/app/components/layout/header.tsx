@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/provider/auth-context";
 import type { Workspace } from "@/routes/types";
 import { Button } from "../ui/button";
@@ -10,10 +11,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuGroup,
-} from "@/components/ui/dropdown-menu"; // assumed you're using a wrapper
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Link } from "react-router-dom";
 import { WorkspaceAvatar } from "../workspace/workspace-avatar";
+import { CreateWorkspace } from "../workspace/create-workspace";
 
 interface HeaderProps {
   onWorkspaceSelected: (workspace: Workspace) => void;
@@ -28,6 +30,7 @@ const Header = ({
 }: HeaderProps) => {
   const { user, logout } = useAuth();
   const workspaces = user?.workspaces || [];
+  const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
 
   return (
     <div className="bg-background sticky top-0 z-40 border-b">
@@ -65,7 +68,7 @@ const Header = ({
               ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onCreateWorkspace}>
+            <DropdownMenuItem onClick={() => setIsCreatingWorkspace(true)}>
               <PlusCircle className="w-4 h-4 mr-2" />
               Create New Workspace
             </DropdownMenuItem>
@@ -101,6 +104,12 @@ const Header = ({
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Modal */}
+      <CreateWorkspace
+        isCreatingWorkspace={isCreatingWorkspace}
+        setIsCreatingWorkspace={setIsCreatingWorkspace}
+      />
     </div>
   );
 };

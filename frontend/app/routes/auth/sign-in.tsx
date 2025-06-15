@@ -52,7 +52,7 @@ const SignIn = () => {
     mutate(values, {
       onSuccess: (data) => {
         const { user, token } = data as { user: User; token: string };
-  login({ user, token });
+        login({ user, token });
         toast.success('Login successful!');
         navigate('/dashboard'); // 🔁 Change this to your post-login route
       },

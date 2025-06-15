@@ -10,13 +10,8 @@ const DashboardLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/sign-in" />;
-  }
+  if (isLoading) return <Loader />;
+  if (!isAuthenticated) return <Navigate to="/sign-in" />;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
@@ -25,12 +20,10 @@ const DashboardLayout = () => {
         <Header
           selectedWorkspace={currentWorkspace}
           onWorkspaceSelected={setCurrentWorkspace}
-          onCreateWorkspace={() => {
-            // logic to show create workspace modal if needed
-          }}
+          onCreateWorkspace={() => {}}
         />
-        <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className="flex-1 overflow-y-auto h-full w-full">
+          <div className="mx-auto container px-2 sm:px-6 lg:px-8 py-0 md:py-8 w-full h-full">
             <Outlet />
           </div>
         </main>

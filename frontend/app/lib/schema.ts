@@ -25,3 +25,9 @@ export const signUpSchema = z
   path: ['confirmPassword'],
   message: 'Passwords do not match',
 });
+
+export const workspaceSchema = z.object({
+  name:z.string().min(3,"Must be atleast 3 Character Long"),
+  color:z.string().min(3,"Color must be atleast 3 Character Long"),
+  description:z.string().optional(),
+});
