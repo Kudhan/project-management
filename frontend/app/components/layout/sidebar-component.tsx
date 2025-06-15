@@ -10,7 +10,7 @@ export const SidebarComponent = ({ currentWorkspace }) => {
 
   const navItems = [
     { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { title: 'Workspace', href: '/workspace', icon: Users },
+    { title: 'Workspace', href: '/workspaces', icon: Users },
     { title: 'My Tasks', href: '/my-tasks', icon: ListCheck },
     { title: 'Achieved', href: '/achieved', icon: CheckCircle2 },
     { title: 'Settings', href: '/settings', icon: Settings },

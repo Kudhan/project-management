@@ -1,7 +1,6 @@
 import {
   isRouteErrorResponse,
   Links,
-  Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -30,7 +29,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
+        {/* Removed <Meta /> which caused crash */}
+        <title>Project Manager</title>
         <Links />
       </head>
       <body>
@@ -46,13 +46,10 @@ export default function App() {
   return (
     <ReactQueryProvider>
       <AuthProvider>
-        <Outlet />;
-        </AuthProvider>
+        <Outlet />
+      </AuthProvider>
     </ReactQueryProvider>
-
-
-  )
-  
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
