@@ -13,7 +13,7 @@ import {
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { WorkspaceAvatar } from "../workspace/workspace-avatar";
 import { CreateWorkspace } from "../workspace/create-workspace";
 
@@ -29,9 +29,9 @@ const Header = ({
   onCreateWorkspace,
 }: HeaderProps) => {
   const { user, logout } = useAuth();
-  const workspaces = user?.workspaces || [];
+  const {workspaces} = useLoaderData() as {workspaces:Workspace[]};
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
-
+  console.log(workspaces);
   return (
     <div className="bg-background sticky top-0 z-40 border-b">
       <div className="flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8 py-4">

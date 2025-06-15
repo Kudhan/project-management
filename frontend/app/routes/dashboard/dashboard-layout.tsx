@@ -5,6 +5,19 @@ import { Loader } from '@/components/loader';
 import Header from '@/components/layout/header';
 import { SidebarComponent } from '@/components/layout/sidebar-component';
 import type { Workspace } from '@/routes/types';
+import { fetchData } from '@/lib/fetch-util';
+
+export const clientLoader = async () => {
+  try {
+    const [workspaces] = await Promise.all([fetchData("/workspaces")]);
+    return { workspaces };
+  } catch (error) {
+    console.error(error);
+    // Return a safe fallback so your loader consumer doesn’t break
+    return { workspaces: [] };
+  }
+};
+
 
 const DashboardLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
