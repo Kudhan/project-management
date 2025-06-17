@@ -5,6 +5,13 @@ import mongoose from 'mongoose';
 import morgan from 'morgan';
 import routes from "./routes/index.js";
 
+
+import './models/user.js';
+import './models/project.js';
+import './models/task.js';
+import './models/workspace.js';
+import './models/comment.js';
+
 dotenv.config();
 
 const app = express();
