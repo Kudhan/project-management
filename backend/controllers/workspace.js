@@ -50,25 +50,21 @@ export const getWorkspaceDetails = async (req, res) => {
   try {
     const { workspaceId } = req.params;
 
-    const workspace = await Workspace.findById(workspaceId).populate(
-      "members.user",
-      "name email profilePicture"
-    );
+    const workspace = await Workspace.findById(workspaceId)
+      .populate("members.user", "name email profilePicture")
+      .populate("projects");  // <-- Add this line to populate projects
 
     if (!workspace) {
-      return res.status(404).json({
-        message: "Workspace not found",
-      });
+      return res.status(404).json({ message: "Workspace not found" });
     }
 
     res.status(200).json(workspace);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 export const getWorkspaceProjects = async (req, res) => {
   try {
