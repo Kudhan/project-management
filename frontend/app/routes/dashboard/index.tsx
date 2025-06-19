@@ -1,9 +1,14 @@
-import { RecentProjects } from "@/components/dashboard/recnt-projects";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router";
+import { toast } from "sonner";
+
+import { RecentProjects } from "@/components/dashboard/recent-projects";
 import { StatsCard } from "@/components/dashboard/stat-card";
 import { StatisticsCharts } from "@/components/dashboard/statistics-charts";
 import { Loader } from "@/components/loader";
 import { UpcomingTasks } from "@/components/upcoming-tasks";
-import { useGetWorkspaceStatsQuery } from "@/hooks/use-workspace";
+import { useGetWorkspaceStatsQuery } from "@/hooks/useworkspace";
+
 import type {
   Project,
   ProjectStatusData,
@@ -14,13 +19,24 @@ import type {
   WorkspaceProductivityData,
 } from "@/routes/types";
 
-import { useSearchParams } from "react-router";
-
 const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const workspaceId = searchParams.get("workspaceId");
 
-  const { data, isPending } = useGetWorkspaceStatsQuery(workspaceId!) as {
+  // Show toast once if workspaceId is not present
+  useEffect(() => {
+    if (!workspaceId) {
+      toast.error("Please select a workspace to view the dashboard.");
+    }
+  }, [workspaceId]);
+
+  // Skip query execution if no workspaceId
+  const {
+    data,
+    isFetching: isPending,
+  } = useGetWorkspaceStatsQuery(workspaceId!, {
+    skip: !workspaceId,
+  }) as {
     data: {
       stats: StatsCardProps;
       taskTrendsData: TaskTrendsData[];
@@ -30,10 +46,16 @@ const Dashboard = () => {
       upcomingTasks: Task[];
       recentProjects: Project[];
     };
-    isPending: boolean;
+    isFetching: boolean;
   };
 
-  if (isPending) {
+  // Don't render anything if workspaceId is missing
+  if (!workspaceId) {
+    return null;
+  }
+
+  // Show loader while fetching
+  if (isPending || !data) {
     return (
       <div>
         <Loader />
@@ -41,6 +63,7 @@ const Dashboard = () => {
     );
   }
 
+  // Render the dashboard content
   return (
     <div className="space-y-8 2xl:space-y-12">
       <div className="flex items-center justify-between">
