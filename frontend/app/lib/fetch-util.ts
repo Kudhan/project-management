@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import type { AxiosRequestConfig } from "axios";
 
 // Base URL from environment or fallback
-const BASE_URL ="http://localhost:5000/api";
+const BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 // Create Axios instance
 const api = axios.create({
@@ -12,6 +12,10 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+
+console.log("Using API Base URL:", BASE_URL);
+
 
 // Request interceptor to attach token
 api.interceptors.request.use((config) => {

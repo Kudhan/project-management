@@ -12,7 +12,7 @@ export const SidebarComponent = ({ currentWorkspace }) => {
     { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { title: 'Workspace', href: '/workspaces', icon: Users },
     { title: 'My Tasks', href: '/my-tasks', icon: ListCheck },
-    { title: 'Achieved', href: '/achieved', icon: CheckCircle2 },
+    { title: 'Members', href: '/members', icon: CheckCircle2 },
     { title: 'Settings', href: '/settings', icon: Settings },
   ];
 
