@@ -11,6 +11,8 @@ import './models/project.js';
 import './models/task.js';
 import './models/workspace.js';
 import './models/comment.js';
+import './models/activity.js';
+import './models/workspace-invite.js'
 
 dotenv.config();
 
