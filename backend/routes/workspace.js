@@ -4,7 +4,8 @@ import {
   createWorkspace,
   getWorkspaces,
   getWorkspaceDetails,
-  getWorkspaceProjects
+  getWorkspaceProjects,
+  getWorkspaceStats
   
 } from "../controllers/workspace.js";
 import {
@@ -27,5 +28,6 @@ router.get("/",authMiddleware,getWorkspaces);
 
 router.get("/:workspaceId",authMiddleware,getWorkspaceDetails);
 router.get("/:workspaceId/projects",authMiddleware,getWorkspaceProjects);
+router.get("/:workspaceId/stats",authMiddleware,getWorkspaceStats);
 
 export default router;
