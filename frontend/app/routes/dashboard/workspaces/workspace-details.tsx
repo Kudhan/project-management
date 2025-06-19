@@ -1,11 +1,12 @@
 import { Loader } from "@/components/loader";
+import { CreateProjectDialog } from "@/components/project/create-project";
+import { InviteMemberDialog } from "@/components/workspace/invite-member";
+import { ProjectList } from "@/components/workspace/project-list";
 import { WorkspaceHeader } from "@/components/workspace/workspace-header";
 import { useGetWorkspaceQuery } from "@/hooks/useworkspace";
-import type { Project, Workspace } from "@/routes/types";
+import type { Project,Workspace } from "@/routes/types";
 import { useState } from "react";
 import { useParams } from "react-router";
-import { ProjectList } from "@/components/workspace/project-list";
-import { CreateProjectDialog } from "@/components/project/create-project";
 
 const WorkspaceDetails = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -13,32 +14,30 @@ const WorkspaceDetails = () => {
   const [isInviteMember, setIsInviteMember] = useState(false);
 
   if (!workspaceId) {
-    return <div>No Workspace Found</div>;
+    return <div>No workspace found</div>;
   }
 
-  const { data, isLoading, error } = useGetWorkspaceQuery(workspaceId);
-
-  console.log("Workspace Query Debug →", { data, isLoading, error });
+  const { data, isLoading } = useGetWorkspaceQuery(workspaceId) as {
+    data: {
+      workspace: Workspace;
+      projects: Project[];
+    };
+    isLoading: boolean;
+  };
 
   if (isLoading) {
-    return <Loader />;
+    return (
+      <div>
+        <Loader />
+      </div>
+    );
   }
-
-  if (error) {
-    return <div>Error loading workspace</div>;
-  }
-
-  if (!data) {
-    return <div>Workspace data not available</div>;
-  }
-
-  // Here data is the workspace object directly, not wrapped inside a `workspace` key
 
   return (
     <div className="space-y-8">
       <WorkspaceHeader
-        workspace={data.workspace as Workspace}
-        members={(data.workspace as Workspace).members || []}
+        workspace={data.workspace}
+        members={data?.workspace?.members as any}
         onCreateProject={() => setIsCreateProject(true)}
         onInviteMember={() => setIsInviteMember(true)}
       />
@@ -56,9 +55,11 @@ const WorkspaceDetails = () => {
         workspaceMembers={data.workspace.members as any}
       />
 
-
-      
-
+      <InviteMemberDialog
+        isOpen={isInviteMember}
+        onOpenChange={setIsInviteMember}
+        workspaceId={workspaceId}
+      />
     </div>
   );
 };
