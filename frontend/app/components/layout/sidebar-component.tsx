@@ -3,8 +3,9 @@ import { useAuth } from '@/provider/auth-context';
 import { Link } from 'react-router-dom';
 import { LayoutDashboard, Users, ListCheck, CheckCircle2, Settings, LogOut, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { Workspace } from '@/routes/types';
 
-export const SidebarComponent = ({ currentWorkspace }) => {
+export const SidebarComponent = ({ currentWorkspace }:{currentWorkspace:Workspace|null}) => {
   const { logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
