@@ -13,7 +13,7 @@ export const SidebarComponent = ({ currentWorkspace }) => {
     { title: 'Workspace', href: '/workspaces', icon: Users },
     { title: 'My Tasks', href: '/my-tasks', icon: ListCheck },
     { title: 'Members', href: '/members', icon: CheckCircle2 },
-    { title: 'Settings', href: '/settings', icon: Settings },
+    { title: 'Settings', href: '/user/profile', icon: Settings },
   ];
 
   return (

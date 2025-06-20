@@ -20,8 +20,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+  useChangePassword,
+  useUpdateUserProfile,
+  useUserProfileQuery,
+} from "@/hooks/use-user";
 import { useAuth } from "@/provider/auth-context";
-import type { User } from "@/types";
+import type { User } from "@/routes/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
