@@ -22,10 +22,11 @@ export const useGetWorkspaceQuery = (workspaceId: string) => {
   });
 };
 
-export const useGetWorkspaceStatsQuery = (workspaceId: string) => {
+export const useGetWorkspaceStatsQuery = (workspaceId: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ["workspace", workspaceId, "stats"],
     queryFn: async () => fetchData(`/workspaces/${workspaceId}/stats`),
+    ...options,
   });
 };
 

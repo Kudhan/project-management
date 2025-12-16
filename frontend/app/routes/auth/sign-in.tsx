@@ -1,5 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import type { User } from "@/routes/types";
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, Link } from 'react-router-dom';
@@ -46,7 +47,7 @@ const SignIn = () => {
 
   const navigate = useNavigate();
   const { mutate, isPending } = useLoginMutation();
-  const {login} = useAuth();
+  const { login } = useAuth();
 
   const handleSubmit = (values: SignInFormData) => {
     mutate(values, {

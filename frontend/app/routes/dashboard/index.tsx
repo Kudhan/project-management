@@ -35,7 +35,7 @@ const Dashboard = () => {
     data,
     isFetching: isPending,
   } = useGetWorkspaceStatsQuery(workspaceId!, {
-    skip: !workspaceId,
+    enabled: !!workspaceId,
   }) as {
     data: {
       stats: StatsCardProps;
