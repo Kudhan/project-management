@@ -36,8 +36,8 @@ const SignUp = () => {
 
     mutate(payload, {
       onSuccess: () => {
-        toast.success("Email Verification Sent", {
-          description: "Check your email for a verification link. Don’t forget to check your spam folder.",
+        toast.success("Account created successfully", {
+          description: "Please sign in with your new credentials.",
         });
         navigate("/sign-in");
       },

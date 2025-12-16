@@ -39,40 +39,13 @@ const signupUser = async (req, res) => {
       password: hashedPassword
     });
 
-    const verificationToken = jwt.sign(
-      { userId: newUser._id, purpose: "email-verification" },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    await Verification.create({
-      userId: newUser._id,
-      token: verificationToken,
-      expiresAt: new Date(Date.now() + 3600000) // 1 hour
-    });
-
-    const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-    const emailBody = `
-      <p>Hello ${name},</p>
-      <p>Click the link below to verify your email:</p>
-      <a href="${verificationLink}">Verify Email</a>
-    `;
-    const emailSubject = "Email Verification";
-
-    try {
-      await sendEmail(newUser.email, emailSubject, emailBody);
-    } catch (error) {
-      await Verification.deleteOne({ userId: newUser._id });
-      await User.deleteOne({ _id: newUser._id });
-
-      return res.status(500).json({
-        message: "Failed to send verification email",
-        error: "FailedToSendEmail"
-      });
-    }
+    // Verification logic removed by request - defaulting to verified
+    // const verificationToken = jwt.sign(...)
+    // await Verification.create(...)
+    // await sendEmail(...)
 
     res.status(201).json({
-      message: "Verification email sent successfully",
+      message: "Account created successfully",
       status: "success",
       user: {
         email: newUser.email,
@@ -103,41 +76,12 @@ const signinUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid Email Or Password" });
     }
 
+    // Verification check bypassed
+    /*
     if (!user.isEmailVerified) {
-      const existingVerification = await Verification.findOne({ userId: user._id });
-
-      if (!existingVerification || existingVerification.expiresAt < new Date()) {
-        if (existingVerification) {
-          await Verification.findByIdAndDelete(existingVerification._id);
-        }
-
-        const verificationToken = jwt.sign(
-          { userId: user._id, purpose: "email-verification" },
-          process.env.JWT_SECRET,
-          { expiresIn: "1h" }
-        );
-
-        await Verification.create({
-          userId: user._id,
-          token: verificationToken,
-          expiresAt: new Date(Date.now() + 3600000),
-        });
-
-        const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-        const emailBody = `
-          <p>Hello ${user.name},</p>
-          <p>Click the link below to verify your email:</p>
-          <a href="${verificationLink}">Verify Email</a>
-        `;
-        const emailSubject = "Email Verification";
-
-        await sendEmail(user.email, emailSubject, emailBody);
-
-        return res.status(200).json({ message: "Verification Email Sent" });
-      }
-
-      return res.status(400).json({ message: "Email Not Verified" });
+       ... logic removed ...
     }
+    */
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
