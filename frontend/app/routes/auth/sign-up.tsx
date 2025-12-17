@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useSignUpMutation } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 
@@ -31,6 +31,9 @@ const SignUp = () => {
   const { mutate, isPending } = useSignUpMutation();
   const navigate = useNavigate();
 
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl");
+
   const handleSubmit = (values: SignUpFormData) => {
     const { confirmPassword, ...payload } = values; // ✅ Exclude confirmPassword
 
@@ -40,12 +43,16 @@ const SignUp = () => {
           toast.success("Account created! Please verify your email.", {
             description: "We've sent a verification code to your email.",
           });
-          navigate(`/verify-otp?email=${encodeURIComponent(payload.email)}`);
+          let redirectUrl = `/verify-otp?email=${encodeURIComponent(payload.email)}`;
+          if (returnUrl) {
+            redirectUrl += `&returnUrl=${encodeURIComponent(returnUrl)}`;
+          }
+          navigate(redirectUrl);
         } else {
           toast.success("Account created successfully", {
             description: "Please sign in with your new credentials.",
           });
-          navigate("/sign-in");
+          navigate(`/sign-in${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`);
         }
       },
       onError: (error: any) => {
@@ -131,7 +138,7 @@ const SignUp = () => {
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/sign-in" className="font-medium text-primary hover:underline">
+            <Link to={`/sign-in${window.location.search}`} className="font-medium text-primary hover:underline">
               Sign in
             </Link>
           </div>

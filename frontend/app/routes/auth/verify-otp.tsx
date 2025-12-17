@@ -51,7 +51,8 @@ export default function VerifyOtp() {
             localStorage.setItem("token", response.token);
             localStorage.setItem("user", JSON.stringify(response.user));
             // Force reload or use context method to update state
-            window.location.href = "/dashboard";
+            const returnUrl = searchParams.get("returnUrl");
+            window.location.href = returnUrl || "/dashboard";
 
         } catch (err: any) {
             setError(err.response?.data?.message || "Verification failed. Please try again.");
@@ -115,7 +116,7 @@ export default function VerifyOtp() {
                             {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend OTP"}
                         </button>
                     </div>
-                    <Link to="/sign-in" className="text-primary hover:underline">
+                    <Link to={`/sign-in${window.location.search}`} className="text-primary hover:underline">
                         Back to Sign In
                     </Link>
                 </CardFooter>

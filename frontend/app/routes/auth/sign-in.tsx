@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import type { User } from "@/routes/types";
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { signInSchema } from '@/lib/schema';
@@ -46,8 +46,12 @@ const SignIn = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { mutate, isPending } = useLoginMutation();
   const { login } = useAuth();
+
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl");
 
   const handleSubmit = (values: SignInFormData) => {
     mutate(values, {
@@ -55,7 +59,7 @@ const SignIn = () => {
         const { user, token } = data as { user: User; token: string };
         login({ user, token });
         toast.success('Login successful!');
-        navigate('/dashboard'); // 🔁 Change this to your post-login route
+        navigate(returnUrl || '/dashboard'); // 🔁 Change this to your post-login route
       },
       onError: (error: any) => {
         const errorMessage =
@@ -137,7 +141,7 @@ const SignIn = () => {
           {/* Footer */}
           <div className="mt-6 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link to="/sign-up" className="font-medium text-primary hover:underline">
+            <Link to={`/sign-up${location.search}`} className="font-medium text-primary hover:underline">
               Sign up
             </Link>
           </div>

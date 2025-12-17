@@ -8,9 +8,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { WorkspaceAvatar } from "@/components/workspace/workspace-avatar";
-import { useAcceptGenerateInviteMutation,useAcceptInviteByTokenMutation,useGetWorkspaceDetailsQuery } from "@/hooks/useworkspace";
+import { useAcceptGenerateInviteMutation, useAcceptInviteByTokenMutation, useGetWorkspaceDetailsQuery } from "@/hooks/useworkspace";
 import type { Workspace } from "@/routes/types";
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
@@ -27,9 +27,18 @@ const WorkspaceInvite = () => {
     return <div>Workspace not found</div>;
   }
 
-  const { data: workspace, isLoading } = useGetWorkspaceDetailsQuery(
+  const { data: workspace, isLoading, error } = useGetWorkspaceDetailsQuery(
     workspaceId!
-  ) as { data: Workspace; isLoading: boolean };
+  ) as { data: Workspace; isLoading: boolean; error: any };
+
+  useEffect(() => {
+    if (error) {
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+        navigate(`/sign-in?returnUrl=${returnUrl}`);
+      }
+    }
+  }, [error, navigate]);
 
   const {
     mutate: acceptInviteByToken,

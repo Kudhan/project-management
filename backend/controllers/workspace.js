@@ -63,7 +63,7 @@ const getWorkspaceDetails = async (req, res) => {
     }
 
     res.status(200).json(workspace);
-  } catch (error) {}
+  } catch (error) { }
 };
 
 const getWorkspaceProjects = async (req, res) => {
@@ -338,24 +338,21 @@ const inviteUserToWorkspace = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
 
-    if (!existingUser) {
-      return res.status(400).json({
-        message: "User not found",
-      });
+    if (existingUser) {
+      const isMember = workspace.members.some(
+        (member) => member.user.toString() === existingUser._id.toString()
+      );
+
+      if (isMember) {
+        return res.status(400).json({
+          message: "User already a member of this workspace",
+        });
+      }
     }
 
-    const isMember = workspace.members.some(
-      (member) => member.user.toString() === existingUser._id.toString()
-    );
-
-    if (isMember) {
-      return res.status(400).json({
-        message: "User already a member of this workspace",
-      });
-    }
-
+    // Check for existing invite by email
     const isInvited = await WorkspaceInvite.findOne({
-      user: existingUser._id,
+      email: email,
       workspaceId: workspaceId,
     });
 
@@ -371,7 +368,7 @@ const inviteUserToWorkspace = async (req, res) => {
 
     const inviteToken = jwt.sign(
       {
-        user: existingUser._id,
+        email: email,
         workspaceId: workspaceId,
         role: role || "member",
       },
@@ -380,7 +377,8 @@ const inviteUserToWorkspace = async (req, res) => {
     );
 
     await WorkspaceInvite.create({
-      user: existingUser._id,
+      email: email,
+      user: existingUser ? existingUser._id : undefined, // Link user if exists, else undefined
       workspaceId: workspaceId,
       token: inviteToken,
       role: role || "member",
@@ -390,8 +388,9 @@ const inviteUserToWorkspace = async (req, res) => {
     const invitationLink = `${process.env.FRONTEND_URL}/workspace-invite/${workspace._id}?tk=${inviteToken}`;
 
     const emailContent = `
-      <p>You have been invited to join ${workspace.name} workspace</p>
+      <p>You have been invited to join <b>${workspace.name}</b> workspace</p>
       <p>Click here to join: <a href="${invitationLink}">${invitationLink}</a></p>
+      ${!existingUser ? "<p>Note: You will need to create an account first.</p>" : ""}
     `;
 
     await sendEmail(
@@ -468,7 +467,7 @@ const acceptInviteByToken = async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const { user, workspaceId, role } = decoded;
+    const { email, workspaceId, role } = decoded;
 
     const workspace = await Workspace.findById(workspaceId);
 
@@ -478,8 +477,15 @@ const acceptInviteByToken = async (req, res) => {
       });
     }
 
+    // Check if the logged-in user is the one who was invited
+    if (req.user.email !== email) {
+      return res.status(403).json({
+        message: "This invitation was sent to a different email address.",
+      });
+    }
+
     const isMember = workspace.members.some(
-      (member) => member.user.toString() === user.toString()
+      (member) => member.user.toString() === req.user._id.toString()
     );
 
     if (isMember) {
@@ -489,7 +495,7 @@ const acceptInviteByToken = async (req, res) => {
     }
 
     const inviteInfo = await WorkspaceInvite.findOne({
-      user: user,
+      email: email,
       workspaceId: workspaceId,
     });
 
@@ -506,7 +512,7 @@ const acceptInviteByToken = async (req, res) => {
     }
 
     workspace.members.push({
-      user: user,
+      user: req.user._id,
       role: role || "member",
       joinedAt: new Date(),
     });
@@ -515,7 +521,7 @@ const acceptInviteByToken = async (req, res) => {
 
     await Promise.all([
       WorkspaceInvite.deleteOne({ _id: inviteInfo._id }),
-      recordActivity(user, "joined_workspace", "Workspace", workspaceId, {
+      recordActivity(req.user._id, "joined_workspace", "Workspace", workspaceId, {
         description: `Joined ${workspace.name} workspace`,
       }),
     ]);

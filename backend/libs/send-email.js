@@ -24,6 +24,7 @@ export const sendEmail = async (to, subject, html) => {
       to,
       subject,
       html,
+      text: html.replace(/<[^>]*>/g, ''), // Fallback text version
     });
 
     console.log("✅ Email sent successfully. MessageId:", info.messageId);
