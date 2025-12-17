@@ -11,13 +11,16 @@ export default [
     route("sign-in", "routes/auth/sign-in.tsx"),
     route("sign-up", "routes/auth/sign-up.tsx"),
     route("verify-email", "routes/auth/verify-email.tsx"),
+    route("verify-otp", "routes/auth/verify-otp.tsx"),
+    route("forgot-password", "routes/auth/forgot-password.tsx"),
+    route("reset-password", "routes/auth/reset-password.tsx"),
   ]),
 
   layout("routes/dashboard/dashboard-layout.tsx", [
     route("dashboard", "routes/dashboard/index.tsx"),
     route("workspaces", "routes/dashboard/workspaces/index.tsx"),
     // ✅ Dynamic route for any workspace
-    route("workspaces/:workspaceId","routes/dashboard/workspaces/workspace-details.tsx"),
+    route("workspaces/:workspaceId", "routes/dashboard/workspaces/workspace-details.tsx"),
     route(
       "workspaces/:workspaceId/projects/:projectId",
       "routes/dashboard/project/project-details.tsx"

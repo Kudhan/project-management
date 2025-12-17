@@ -1,30 +1,35 @@
-import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const fromEmail = process.env.FROM_EMAIL;
-
-if (!process.env.SENDGRID_API_KEY || !fromEmail) {
-  throw new Error("Missing SendGrid API key or sender email in environment variables");
-}
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
+  port: parseInt(process.env.SMTP_PORT || "587"),
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 export const sendEmail = async (to, subject, html) => {
-  try {
-    const msg = {
-      to,
-      from: fromEmail,
-      subject,
-      html
-    };
+  const fromEmail = process.env.FROM_EMAIL || "no-reply@example.com";
 
-    await sgMail.send(msg);
-    console.log("✅ Email sent successfully to", to);
+  try {
+    console.log(`📨 Attempting to send email to ${to} via Brevo SMTP...`);
+
+    const info = await transporter.sendMail({
+      from: fromEmail,
+      to,
+      subject,
+      html,
+    });
+
+    console.log("✅ Email sent successfully. MessageId:", info.messageId);
     return true;
   } catch (error) {
-    console.error("❌ SendGrid Error:", error.message);
+    console.error("❌ SMTP Error:", error.message);
     console.log("⚠️ Falling back to console logging due to email failure.");
     console.log("================ EMAIL CONTENT ================");
     console.log("To:", to);

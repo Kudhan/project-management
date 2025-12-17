@@ -61,7 +61,13 @@ const SignIn = () => {
         const errorMessage =
           error?.response?.data?.message || 'An unexpected error occurred';
         console.error('Login error:', error);
-        toast.error(errorMessage);
+
+        if (error?.response?.data?.status === "pending_verification") {
+          toast.error("Please verify your email first.");
+          navigate(`/verify-otp?email=${encodeURIComponent(values.email)}`);
+        } else {
+          toast.error(errorMessage);
+        }
       },
     });
   };
@@ -114,7 +120,7 @@ const SignIn = () => {
               {/* Forgot Password */}
               <div className="text-right text-sm">
                 <Link
-                  to="/forget-password"
+                  to="/forgot-password"
                   className="font-medium text-primary hover:underline"
                 >
                   Forgot password?

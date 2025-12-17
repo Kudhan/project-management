@@ -35,11 +35,18 @@ const SignUp = () => {
     const { confirmPassword, ...payload } = values; // ✅ Exclude confirmPassword
 
     mutate(payload, {
-      onSuccess: () => {
-        toast.success("Account created successfully", {
-          description: "Please sign in with your new credentials.",
-        });
-        navigate("/sign-in");
+      onSuccess: (data: any) => {
+        if (data?.status === "pending_verification") {
+          toast.success("Account created! Please verify your email.", {
+            description: "We've sent a verification code to your email.",
+          });
+          navigate(`/verify-otp?email=${encodeURIComponent(payload.email)}`);
+        } else {
+          toast.success("Account created successfully", {
+            description: "Please sign in with your new credentials.",
+          });
+          navigate("/sign-in");
+        }
       },
       onError: (error: any) => {
         const message =
