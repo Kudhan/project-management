@@ -123,4 +123,125 @@ const getProjectTasks = async (req, res) => {
   }
 };
 
-export { createProject, getProjectDetails, getProjectTasks };
+const deleteProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (project.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to delete this project" });
+    }
+
+    await Project.deleteOne({ _id: projectId });
+    await Task.deleteMany({ project: projectId });
+
+    // Remove from workspace projects array
+    await Workspace.updateOne(
+      { _id: project.workspace },
+      { $pull: { projects: projectId } }
+    );
+
+    res.status(200).json({ message: "Project deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const updateProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { title, description, status, priority, startDate, dueDate } = req.body;
+
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    // Check ownership or admin rights if needed
+    // For now allowing members to update, or restrict to creator?
+    // Let's restrict usage to members at least
+    const isMember = project.members.some(m => m.user.toString() === req.user._id.toString());
+    if (!isMember) {
+      return res.status(403).json({ message: "Not authorized to update this project" });
+    }
+
+    project.title = title || project.title;
+    project.description = description || project.description;
+    project.status = status || project.status;
+    project.startDate = startDate || project.startDate;
+    project.dueDate = dueDate || project.dueDate;
+    // project.priority = priority || project.priority; // Project model might not have priority at root
+
+    await project.save();
+
+    res.status(200).json(project);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const addMemberToProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { userId, role } = req.body;
+
+    const project = await Project.findById(projectId);
+    if (!project) return res.status(404).json({ message: "Project not found" });
+
+    // Check if user exists in workspace
+    const workspace = await Workspace.findById(project.workspace);
+    const isWorkspaceMember = workspace.members.some(m => m.user.toString() === userId);
+
+    if (!isWorkspaceMember) {
+      return res.status(400).json({ message: "User must be a member of the workspace first" });
+    }
+
+    const isAlreadyMember = project.members.some(m => m.user.toString() === userId);
+    if (isAlreadyMember) {
+      return res.status(400).json({ message: "User already in project" });
+    }
+
+    project.members.push({ user: userId, role: role || "member" });
+    await project.save();
+
+    res.status(200).json({ message: "Member added successfully", project });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const removeMemberFromProject = async (req, res) => {
+  try {
+    const { projectId, userId } = req.params;
+
+    const project = await Project.findById(projectId);
+    if (!project) return res.status(404).json({ message: "Project not found" });
+
+    project.members = project.members.filter(m => m.user.toString() !== userId);
+    await project.save();
+
+    res.status(200).json({ message: "Member removed successfully", project });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export {
+  createProject,
+  getProjectDetails,
+  getProjectTasks,
+  deleteProject,
+  updateProject,
+  addMemberToProject,
+  removeMemberFromProject
+};
