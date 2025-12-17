@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/provider/auth-context';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, Users, ListCheck, CheckCircle2, Settings, LogOut, Wrench } from 'lucide-react';
+import { LayoutDashboard, Users, ListCheck, CheckCircle2, Settings, LogOut, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Workspace } from '@/routes/types';
 
@@ -22,11 +22,11 @@ export const SidebarComponent = ({ currentWorkspace }: { currentWorkspace: Works
       <div className="flex h-14 items-center border-b px-4 mb-4">
         <Link to={currentWorkspace ? `/dashboard?workspaceId=${currentWorkspace._id}` : "/dashboard"} className="flex items-center">
           {isCollapsed ? (
-            <Wrench className="size-6 text-blue-600" />
+            <Zap className="size-6 text-blue-600" />
           ) : (
             <div className="flex items-center gap-2">
-              <Wrench className="size-6 text-blue-600" />
-              <span className="font-semibold text-lg hidden md:block">Taskhub</span>
+              <Zap className="size-6 text-blue-600" />
+              <span className="font-semibold text-lg hidden md:block">CollabSphere</span>
             </div>
           )}
         </Link>
