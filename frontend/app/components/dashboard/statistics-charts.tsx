@@ -177,10 +177,11 @@ export const StatisticsCharts = ({
           </div>
         </CardHeader>
 
-        <CardContent className="w-full overflow-x-auto md:overflow-x-hidden">
-          <div className="min-w-[350px]">
+        <CardContent>
+          <div className="h-[300px] w-full items-center justify-center flex">
+            {/* Centered container for better alignment */}
             <ChartContainer
-              className="h-[300px]"
+              className="h-full w-full max-w-[300px]"
               config={{
                 High: { color: "#ef4444" },
                 Medium: { color: "#f59e0b" },
@@ -193,21 +194,19 @@ export const StatisticsCharts = ({
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
-                  outerRadius={80}
+                  outerRadius={90}
                   paddingAngle={2}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
-                  labelLine={false}
+                  strokeWidth={2}
+                  stroke="hsl(var(--card))"
                 >
                   {taskPriorityData?.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <ChartTooltip />
-                <ChartLegend content={<ChartLegendContent />} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend className="mt-4" content={<ChartLegendContent />} />
               </PieChart>
             </ChartContainer>
           </div>

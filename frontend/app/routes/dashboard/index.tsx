@@ -49,15 +49,27 @@ const Dashboard = () => {
     isFetching: boolean;
   };
 
-  // Don't render anything if workspaceId is missing
+  // Render Empty State if no workspaceId
   if (!workspaceId) {
-    return null;
+    return (
+      <div className="flex flex-col items-center justify-center h-[80vh] text-center space-y-6">
+        <div className="bg-blue-100 dark:bg-blue-900/20 p-6 rounded-full">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+        </div>
+        <div className="max-w-md space-y-2">
+          <h2 className="text-3xl font-bold tracking-tight">Welcome to CollabSphere</h2>
+          <p className="text-muted-foreground text-lg">
+            Select a workspace from the top menu or create a new one to get started with your projects.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   // Show loader while fetching
   if (isPending || !data) {
     return (
-      <div>
+      <div className="flex h-[50vh] items-center justify-center">
         <Loader />
       </div>
     );

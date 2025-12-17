@@ -67,34 +67,34 @@ const Workspaces = () => {
 const WorkspaceCard = ({ workspace }: { workspace: Workspace }) => {
   return (
     <Link to={`/workspaces/${workspace._id}`}>
-      <Card className="transition-all hover:shadow-md hover:-translate-y-1">
+      <Card className="group transition-all hover:shadow-lg hover:-translate-y-1 border-s-[6px]" style={{ borderLeftColor: workspace.color || '#3b82f6' }}>
         <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              <WorkspaceAvatar name={workspace.name} color={workspace.color} />
-
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <WorkspaceAvatar name={workspace.name} color={workspace.color} className="h-10 w-10 text-lg shadow-sm" />
               <div>
-                <CardTitle>{workspace.name}</CardTitle>
-                <span className="text-xs text-muted-foreground">
-                  Created at {format(workspace.createdAt, "MMM d, yyyy h:mm a")}
+                <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">{workspace.name}</CardTitle>
+                <span className="text-xs text-muted-foreground block">
+                  Created {format(workspace.createdAt, "MMM d, yyyy")}
                 </span>
               </div>
             </div>
-
-            <div className="flex items-center text-muted-foreground">
-              <Users className="size-4 mr-1" />
-              <span className="text-xs">{workspace.members.length}</span>
-            </div>
           </div>
 
-          <CardDescription>
-            {workspace.description || "No description"}
+          <CardDescription className="line-clamp-2 min-h-[40px]">
+            {workspace.description || "No description provided."}
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <div className="text-sm text-muted-foreground">
-            View workspace details and projects
+          <div className="flex items-center justify-between text-sm text-muted-foreground pt-4 border-t mt-2">
+            <div className="flex items-center gap-1">
+              <Users className="size-4" />
+              <span>{workspace.members.length} member{workspace.members.length !== 1 ? 's' : ''}</span>
+            </div>
+            <span className="text-xs bg-secondary px-2 py-1 rounded">
+              Click to view
+            </span>
           </div>
         </CardContent>
       </Card>

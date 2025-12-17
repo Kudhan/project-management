@@ -137,11 +137,15 @@ export const CreateWorkspace = ({
                             key={color}
                             onClick={() => field.onChange(color)}
                             className={cn(
-                              "w-6 h-6 rounded-full cursor-pointer hover:opacity-80 transition-all duration-300",
-                              field.value === color && "ring-2 ring-offset-2 ring-blue-500"
+                              "w-8 h-8 rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 flex items-center justify-center shadow-sm",
+                              field.value === color && "ring-2 ring-offset-2 ring-blue-500 scale-105"
                             )}
                             style={{ backgroundColor: color }}
-                          ></div>
+                          >
+                            {field.value === color && (
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white"><polyline points="20 6 9 17 4 12" /></svg>
+                            )}
+                          </div>
                         ))}
                       </div>
                     </FormControl>
