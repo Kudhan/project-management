@@ -5,8 +5,8 @@ import { CreateWorkspace } from "@/components/workspace/create-workspace";
 import { fetchData } from "@/lib/fetch-util";
 import { useAuth } from "@/provider/auth-context";
 import type { Workspace } from "@/routes/types";
-import { useState } from "react";
-import { Navigate, Outlet } from "react-router";
+import { useState, useEffect } from "react";
+import { Navigate, Outlet, useSearchParams, useLoaderData } from "react-router";
 
 export const clientLoader = async () => {
   try {
@@ -19,10 +19,22 @@ export const clientLoader = async () => {
 };
 const DashboardLayout = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { workspaces } = useLoaderData() as { workspaces: Workspace[] }; // Get workspaces from loader
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(
     null
   );
+
+  useEffect(() => {
+    const workspaceId = searchParams.get("workspaceId");
+    if (workspaceId && workspaces.length > 0) {
+      const workspace = workspaces.find((w) => w._id === workspaceId);
+      if (workspace) {
+        setCurrentWorkspace(workspace);
+      }
+    }
+  }, [searchParams, workspaces]);
 
   if (isLoading) {
     return <Loader />;
@@ -34,6 +46,7 @@ const DashboardLayout = () => {
 
   const handleWorkspaceSelected = (workspace: Workspace) => {
     setCurrentWorkspace(workspace);
+    setSearchParams({ workspaceId: workspace._id });
   };
 
   return (
