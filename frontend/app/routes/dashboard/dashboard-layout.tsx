@@ -14,6 +14,7 @@ export const clientLoader = async () => {
     return { workspaces };
   } catch (error) {
     console.log(error);
+    return { workspaces: [] };
   }
 };
 const DashboardLayout = () => {
