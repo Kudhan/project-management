@@ -55,14 +55,12 @@ const HomePage = () => {
           </div>
 
           {/* Hero Image Mockup */}
-          <div className="mt-16 mx-auto max-w-5xl rounded-xl border bg-background/50 shadow-2xl p-2 backdrop-blur-sm">
-            <div className="rounded-lg bg-slate-50 border h-[300px] md:h-[500px] flex items-center justify-center text-slate-300">
-              {/* This would be a real screenshot in production */}
-              <div className="text-center">
-                <Layout className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>Dashboard Preview</p>
-              </div>
-            </div>
+          <div className="mt-16 mx-auto max-w-5xl rounded-xl border bg-background/50 shadow-2xl p-2 backdrop-blur-sm overflow-hidden">
+            <img
+              src="file:///C:/Users/HP/.gemini/antigravity/brain/2902bebe-6c5d-4958-8069-6a926e0d22ba/app_dashboard_mockup.webp"
+              alt="CollabSphere Dashboard Preview"
+              className="rounded-lg w-full h-auto object-cover border"
+            />
           </div>
         </div>
       </section>
@@ -78,17 +76,22 @@ const HomePage = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="bg-background border-none shadow-sm">
+            <Card className="bg-background border-none shadow-sm overflow-hidden group">
               <CardHeader>
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mb-4 text-blue-600">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mb-4 text-blue-600 group-hover:scale-110 transition-transform duration-300">
                   <Layout className="w-6 h-6" />
                 </div>
                 <CardTitle>Flexible Workspaces</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-base">
+                <CardDescription className="text-base mb-4">
                   Create dedicated workspaces for different teams or projects. Organize tasks with ease using our intuitive board view.
                 </CardDescription>
+                <img
+                  src="file:///C:/Users/HP/.gemini/antigravity/brain/2902bebe-6c5d-4958-8069-6a926e0d22ba/kanban_board_preview.webp"
+                  alt="Kanban Board"
+                  className="rounded-md border shadow-sm w-full h-32 object-cover object-top hover:object-center transition-all duration-500"
+                />
               </CardContent>
             </Card>
 

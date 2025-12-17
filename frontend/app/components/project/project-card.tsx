@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { getTaskStatusColor } from "@/lib";
 import { Progress } from "../ui/progress";
 import { format } from "date-fns";
+import { Badge } from "../ui/badge";
 import { CalendarDays } from "lucide-react";
 
 interface ProjectCardProps {
@@ -25,22 +26,23 @@ export const ProjectCard = ({
   workspaceId,
 }: ProjectCardProps) => {
   return (
-    <Link to={`/workspaces/${workspaceId}/projects/${project._id}`}>
-      <Card className="transition-all duration-300 hover:shadow-md hover:translate-y-1">
-        <CardHeader>
+    <Link to={`/workspaces/${workspaceId}/projects/${project._id}`} className="group block h-full">
+      <Card className="h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-t-4" style={{ borderTopColor: 'hsl(var(--primary))' }}>
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle>{project.title}</CardTitle>
-            <span
+            <CardTitle className="text-lg font-semibold truncate pr-2">{project.title}</CardTitle>
+            <Badge
+              variant="secondary"
               className={cn(
-                "text-xs rounded-full",
+                "rounded-md capitalize shadow-none",
                 getTaskStatusColor(project.status)
               )}
             >
-              {project.status}
-            </span>
+              {project.status.toLowerCase().replace("_", " ")}
+            </Badge>
           </div>
-          <CardDescription className="line-clamp-2">
-            {project.description || "No description"}
+          <CardDescription className="line-clamp-2 mt-2 h-10">
+            {project.description || "No description provided."}
           </CardDescription>
         </CardHeader>
         <CardContent>

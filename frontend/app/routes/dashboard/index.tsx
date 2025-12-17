@@ -85,8 +85,6 @@ const Dashboard = () => {
       <StatsCard data={data.stats} />
 
       <StatisticsCharts
-        stats={data.stats}
-        taskTrendsData={data.taskTrendsData}
         projectStatusData={data.projectStatusData}
         taskPriorityData={data.taskPriorityData}
         workspaceProductivityData={data.workspaceProductivityData}

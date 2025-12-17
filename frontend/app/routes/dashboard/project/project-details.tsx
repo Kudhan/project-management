@@ -205,7 +205,7 @@ const TaskColumn = ({
       className={
         isFullWidth
           ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-          : ""
+          : "h-full flex flex-col bg-muted/30 rounded-lg p-4 min-h-[500px]"
       }
     >
       <div
@@ -215,9 +215,9 @@ const TaskColumn = ({
         )}
       >
         {!isFullWidth && (
-          <div className="flex items-center justify-between">
-            <h1 className="font-medium">{title}</h1>
-            <Badge variant="outline">{tasks.length}</Badge>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{title}</h3>
+            <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-xs font-normal">{tasks.length}</Badge>
           </div>
         )}
 
@@ -228,8 +228,8 @@ const TaskColumn = ({
           )}
         >
           {tasks.length === 0 ? (
-            <div className="text-center text-sm text-muted-foreground">
-              No tasks yet
+            <div className="flex flex-col items-center justify-center py-8 text-center text-sm text-muted-foreground border-2 border-dashed rounded-lg">
+              <p>No tasks yet</p>
             </div>
           ) : (
             tasks.map((task) => (
@@ -250,116 +250,68 @@ const TaskCard = ({ task, onClick }: { task: Task; onClick: () => void }) => {
   return (
     <Card
       onClick={onClick}
-      className="cursor-pointer hover:shadow-md transition-all duration-300 hover:translate-y-1"
+      className="cursor-pointer hover:shadow-md transition-all duration-300 hover:ring-2 hover:ring-primary/20 border-l-4"
+      style={{
+        borderLeftColor: task.priority === 'High' ? '#ef4444' : task.priority === 'Medium' ? '#f59e0b' : '#3b82f6'
+      }}
     >
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <Badge
-            className={
-              task.priority === "High"
-                ? "bg-red-500 text-white"
-                : task.priority === "Medium"
-                ? "bg-orange-500 text-white"
-                : "bg-slate-500 text-white"
-            }
-          >
-            {task.priority}
-          </Badge>
-
-          <div className="flex gap-1">
-            {task.status !== "To Do" && (
-              <Button
-                variant={"ghost"}
-                size={"icon"}
-                className="size-6"
-                onClick={() => {
-                  console.log("mark as to do");
-                }}
-                title="Mark as To Do"
-              >
-                <AlertCircle className={cn("size-4")} />
-                <span className="sr-only">Mark as To Do</span>
-              </Button>
-            )}
-            {task.status !== "In Progress" && (
-              <Button
-                variant={"ghost"}
-                size={"icon"}
-                className="size-6"
-                onClick={() => {
-                  console.log("mark as in progress");
-                }}
-                title="Mark as In Progress"
-              >
-                <Clock className={cn("size-4")} />
-                <span className="sr-only">Mark as In Progress</span>
-              </Button>
-            )}
-            {task.status !== "Done" && (
-              <Button
-                variant={"ghost"}
-                size={"icon"}
-                className="size-6"
-                onClick={() => {
-                  console.log("mark as done");
-                }}
-                title="Mark as Done"
-              >
-                <CheckCircle className={cn("size-4")} />
-                <span className="sr-only">Mark as Done</span>
-              </Button>
-            )}
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-start justify-between gap-2">
+          <h4 className="font-medium text-sm leading-tight line-clamp-2">{task.title}</h4>
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Actions could go here, visible on hover if needed */}
           </div>
         </div>
-      </CardHeader>
-
-      <CardContent>
-        <h4 className="ont-medium mb-2">{task.title}</h4>
 
         {task.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+          <p className="text-xs text-muted-foreground line-clamp-2">
             {task.description}
           </p>
         )}
 
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2">
-            {task.assignees && task.assignees.length > 0 && (
-              <div className="flex -space-x-2">
-                {task.assignees.slice(0, 5).map((member) => (
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex -space-x-2 overflow-hidden">
+            {task.assignees && task.assignees.length > 0 ? (
+              <>
+                {task.assignees.slice(0, 3).map((member) => (
                   <Avatar
                     key={member._id}
-                    className="relative size-8 bg-gray-700 rounded-full border-2 border-background overflow-hidden"
+                    className="size-6 border-2 border-background ring-1 ring-muted"
                     title={member.name}
                   >
                     <AvatarImage src={member.profilePicture} />
-                    <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                    <AvatarFallback className="text-[10px]">{member.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                 ))}
-
-                {task.assignees.length > 5 && (
-                  <span className="text-xs text-muted-foreground">
-                    + {task.assignees.length - 5}
-                  </span>
+                {task.assignees.length > 3 && (
+                  <div className="size-6 rounded-full bg-muted flex items-center justify-center text-[10px] border-2 border-background font-medium">
+                    +{task.assignees.length - 3}
+                  </div>
                 )}
+              </>
+            ) : (
+              <div className="size-6 rounded-full bg-muted border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
+                <span className="sr-only">Unassigned</span>
               </div>
             )}
           </div>
 
-          {task.dueDate && (
-            <div className="text-xs text-muted-foreground flex items-center">
-              <Calendar className="size-3 mr-1" />
-              {format(new Date(task.dueDate), "MMM d, yyyy")}
-            </div>
-          )}
-        </div>
-        {/* 5/10 subtasks */}
-        {task.subtasks && task.subtasks.length > 0 && (
-          <div className="mt-2 text-xs text-muted-foreground">
-            {task.subtasks.filter((subtask) => subtask.completed).length} /{" "}
-            {task.subtasks.length} subtasks
+          <div className="flex items-center gap-2">
+            {task.subtasks && task.subtasks.length > 0 && (
+              <div className="flex items-center text-xs text-muted-foreground gap-1" title="Subtasks">
+                <CheckCircle className="size-3" />
+                <span>{task.subtasks.filter(s => s.completed).length}/{task.subtasks.length}</span>
+              </div>
+            )}
+
+            {task.dueDate && (
+              <div className={cn("text-xs flex items-center gap-1", new Date(task.dueDate) < new Date() ? "text-red-500 font-medium" : "text-muted-foreground")}>
+                <Calendar className="size-3" />
+                {format(new Date(task.dueDate), "MMM d")}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
