@@ -21,7 +21,8 @@ We will deploy the Node.js/Express backend to Render.com.
     *   `JWT_SECRET`: A strong secret key.
     *   `CLIENT_URL`: The URL of your deployed Frontend (e.g., `https://your-app.vercel.app`). **Required for Socket.io & CORS**.
     *   `PORT`: `5000` (Render creates a `PORT` variable automatically, but good to have fallback).
-    *   *Add other email/Arcjet keys as needed.*
+    *   `BREVO_API_KEY`: Your Brevo API Key (starts with `xkeysib-`).
+    *   `FROM_EMAIL`: The sender email address (e.g., `no-reply@yourdomain.com`).
 
 ## 2. Frontend Deployment (Vercel)
 

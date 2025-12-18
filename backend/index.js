@@ -24,7 +24,13 @@ const PORT = process.env.PORT || 5000;
 /* ======================= MongoDB ======================= */
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ MongoDB connected"))
+  .then(() => {
+    console.log("✅ MongoDB connected");
+    /* ======================= Server ======================= */
+    httpServer.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 /* ======================= CORS (FIXED) ======================= */
@@ -86,7 +92,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-/* ======================= Server ======================= */
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+

@@ -1,36 +1,29 @@
-import nodemailer from "nodemailer";
+import SibApiV3Sdk from "sib-api-v3-sdk";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+const apiKey = defaultClient.authentications["api-key"];
+apiKey.apiKey = process.env.BREVO_API_KEY;
 
 export const sendEmail = async (to, subject, html) => {
   const fromEmail = process.env.FROM_EMAIL || "no-reply@example.com";
+  const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+  sendSmtpEmail.subject = subject;
+  sendSmtpEmail.htmlContent = html;
+  sendSmtpEmail.sender = { name: "CollabSphere", email: fromEmail };
+  sendSmtpEmail.to = [{ email: to }];
 
   try {
-    console.log(`📨 Attempting to send email to ${to} via Brevo SMTP...`);
-
-    const info = await transporter.sendMail({
-      from: fromEmail,
-      to,
-      subject,
-      html,
-      text: html.replace(/<[^>]*>/g, ''), // Fallback text version
-    });
-
-    console.log("✅ Email sent successfully. MessageId:", info.messageId);
+    console.log(`📨 Attempting to send email to ${to} via Brevo API...`);
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log("✅ Email sent successfully. MessageId:", data.messageId);
     return true;
   } catch (error) {
-    console.error("❌ SMTP Error:", error.message);
+    console.error("❌ Brevo API Error:", error);
     console.log("⚠️ Falling back to console logging due to email failure.");
     console.log("================ EMAIL CONTENT ================");
     console.log("To:", to);
