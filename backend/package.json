@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "npm install"
   },
   "dependencies": {
     "@arcjet/inspect": "^1.0.0-beta.8",
