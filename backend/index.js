@@ -18,26 +18,30 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-/* ✅ MongoDB */
+/* ======================= MongoDB ======================= */
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-/* ✅ FIXED CORS */
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://collabsphere-1anb3jek9-kudhans-projects.vercel.app"
-];
-
+/* ======================= CORS (FIXED) ======================= */
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+      // Allow server requests (health checks, curl, etc.)
+      if (!origin) return callback(null, true);
+
+      // Allow localhost (dev)
+      if (origin === "http://localhost:5173") {
+        return callback(null, true);
       }
+
+      // Allow ALL Vercel deployments (prod + preview)
+      if (origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -45,28 +49,32 @@ app.use(
   })
 );
 
+/* ======================= Middleware ======================= */
 app.use(express.json());
 app.use(morgan("dev"));
 
-/* ✅ Health check */
+/* ======================= Routes ======================= */
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Welcome to the backend server" });
 });
 
-/* ✅ API routes */
 app.use("/api", routes);
 
-/* ❌ 404 */
+/* ======================= 404 ======================= */
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-/* ❌ Error handler */
+/* ======================= Error Handler ======================= */
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: "Internal Server Error", error: err.message });
+  res.status(500).json({
+    message: "Internal Server Error",
+    error: err.message,
+  });
 });
 
+/* ======================= Server ======================= */
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
