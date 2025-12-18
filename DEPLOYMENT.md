@@ -19,7 +19,7 @@ We will deploy the Node.js/Express backend to Render.com.
     Current `.env.example` values need to be set in Render:
     *   `MONGODB_URI`: Connection string to your MongoDB Atlas cluster.
     *   `JWT_SECRET`: A strong secret key.
-    *   `FRONTEND_URL`: The URL of your deployed Frontend (e.g., `https://your-app.vercel.app`).
+    *   `CLIENT_URL`: The URL of your deployed Frontend (e.g., `https://your-app.vercel.app`). **Required for Socket.io & CORS**.
     *   `PORT`: `5000` (Render creates a `PORT` variable automatically, but good to have fallback).
     *   *Add other email/Arcjet keys as needed.*
 
@@ -59,7 +59,7 @@ We will deploy the React Router v7 application to Vercel. Since `ssr: true` is e
             *   *(Note: React Router/Vite exposes env vars starting with `VITE_` to the client)*.
 
 4.  **Update Backend CORS**:
-    Once the frontend is live (e.g., `https://project-manager-frontend.vercel.app`), go back to Render and update the `FRONTEND_URL` environment variable to this URL so CORS allows requests.
+    Once the frontend is live (e.g., `https://project-manager-frontend.vercel.app`), go back to Render and update the `CLIENT_URL` environment variable to this URL so CORS and Socket.io allow requests.
 
 ## 3. Final Verification
 

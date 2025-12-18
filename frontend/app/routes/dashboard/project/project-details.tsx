@@ -10,12 +10,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UseProjectQuery } from "@/hooks/use-project";
 import { getProjectProgress } from "@/lib";
 import { cn } from "@/lib/utils";
-import type { Project, Task, TaskStatus } from "@/routes/types";
+import type { Project, Task, TaskStatus, User } from "@/routes/types";
+import { useSocket } from "@/context/socket-context";
+import { useAuth } from "@/provider/auth-context";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { format } from "date-fns";
-import { AlertCircle, Calendar, CheckCircle, Clock } from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, Calendar, CheckCircle, Clock, Users as UsersIcon } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ProjectDetails = () => {
   const { projectId, workspaceId } = useParams<{
@@ -23,9 +27,13 @@ const ProjectDetails = () => {
     workspaceId: string;
   }>();
   const navigate = useNavigate();
+  const { socket, isConnected } = useSocket();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const [isCreateTask, setIsCreateTask] = useState(false);
   const [taskFilter, setTaskFilter] = useState<TaskStatus | "All">("All");
+  const [activeUsers, setActiveUsers] = useState<User[]>([]);
 
   const { data, isLoading } = UseProjectQuery(projectId!) as {
     data: {
@@ -34,6 +42,43 @@ const ProjectDetails = () => {
     };
     isLoading: boolean;
   };
+
+  // Real-time connection and events
+  useEffect(() => {
+    if (!socket || !projectId || !user) return;
+
+    // Join the project room
+    socket.emit("join-project", projectId);
+
+    // Announce presence
+    socket.emit("user-active", { projectId, user });
+
+    // Listen for task updates
+    socket.on("task-updated", (updatedTask) => {
+      // Invalidate query to refetch fresh data
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+    });
+
+    socket.on("task-created", (newTask) => {
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+    });
+
+    // Listen for other users joining
+    socket.on("user-joined", (joinedUser: User) => {
+      setActiveUsers(prev => {
+        if (prev.find(u => u._id === joinedUser._id)) return prev;
+        return [...prev, joinedUser];
+      });
+    });
+
+    return () => {
+      socket.emit("leave-project", projectId);
+      socket.off("task-updated");
+      socket.off("task-created");
+      socket.off("user-joined");
+    };
+  }, [socket, projectId, user, queryClient]);
+
 
   if (isLoading)
     return (
@@ -55,9 +100,40 @@ const ProjectDetails = () => {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <BackButton />
+          <div className="flex items-center gap-4 mb-2">
+            <BackButton />
+            {/* Active Users Indicator */}
+            {activeUsers.length > 0 && (
+              <div className="flex -space-x-2 items-center">
+                {activeUsers.slice(0, 3).map(u => (
+                  <TooltipProvider key={u._id}>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Avatar className="size-6 border-2 border-background ring-2 ring-green-500/50">
+                          <AvatarImage src={u.profilePicture} />
+                          <AvatarFallback className="text-[10px]">{u.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{u.name} is viewing</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
+                {activeUsers.length > 3 && (
+                  <div className="size-6 rounded-full bg-muted flex items-center justify-center text-[10px] border-2 border-background font-medium">
+                    +{activeUsers.length - 3}
+                  </div>
+                )}
+                <span className="text-xs text-muted-foreground ml-3 hidden sm:inline-block animate-pulse">
+                  ● {activeUsers.length} viewing now
+                </span>
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-3">
             <h1 className="text-xl md:text-2xl font-bold">{project.title}</h1>
+            {isConnected && <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50 text-[10px] uppercase">Live</Badge>}
           </div>
           {project.description && (
             <p className="text-sm text-gray-500">{project.description}</p>
@@ -118,7 +194,7 @@ const ProjectDetails = () => {
           </div>
 
           <TabsContent value="all" className="m-0">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <TaskColumn
                 title="To Do"
                 tasks={tasks.filter((task) => task.status === "To Do")}

@@ -4,6 +4,7 @@ import Comment from "../models/comment.js";
 import Project from "../models/project.js";
 import Task from "../models/task.js";
 import Workspace from "../models/workspace.js";
+import { getIO } from "../socket.js";
 
 const createTask = async (req, res) => {
   try {
@@ -50,6 +51,9 @@ const createTask = async (req, res) => {
 
     project.tasks.push(newTask._id);
     await project.save();
+
+    const io = getIO();
+    io.to(projectId).emit("task-created", newTask);
 
     res.status(201).json(newTask);
   } catch (error) {
@@ -129,6 +133,9 @@ const updateTaskTitle = async (req, res) => {
       description: `updated task title from ${oldTitle} to ${title}`,
     });
 
+    const io = getIO();
+    io.to(task.project.toString()).emit("task-updated", task);
+
     res.status(200).json(task);
   } catch (error) {
     console.log(error);
@@ -182,6 +189,9 @@ const updateTaskDescription = async (req, res) => {
       description: `updated task description from ${oldDescription} to ${newDescription}`,
     });
 
+    const io = getIO();
+    io.to(task.project.toString()).emit("task-updated", task);
+
     res.status(200).json(task);
   } catch (error) {
     console.log(error);
@@ -232,6 +242,9 @@ const updateTaskStatus = async (req, res) => {
       description: `updated task status from ${oldStatus} to ${status}`,
     });
 
+    const io = getIO();
+    io.to(task.project.toString()).emit("task-updated", task);
+
     res.status(200).json(task);
   } catch (error) {
     console.log(error);
@@ -281,6 +294,9 @@ const updateTaskAssignees = async (req, res) => {
       description: `updated task assignees from ${oldAssignees.length} to ${assignees.length}`,
     });
 
+    const io = getIO();
+    io.to(task.project.toString()).emit("task-updated", task);
+
     res.status(200).json(task);
   } catch (error) {
     console.log(error);
@@ -329,6 +345,9 @@ const updateTaskPriority = async (req, res) => {
     await recordActivity(req.user._id, "updated_task", "Task", taskId, {
       description: `updated task priority from ${oldPriority} to ${priority}`,
     });
+
+    const io = getIO();
+    io.to(task.project.toString()).emit("task-updated", task);
 
     res.status(200).json(task);
   } catch (error) {
@@ -383,6 +402,9 @@ const addSubTask = async (req, res) => {
       description: `created subtask ${title}`,
     });
 
+    const io = getIO();
+    io.to(task.project.toString()).emit("task-updated", task);
+
     res.status(201).json(task);
   } catch (error) {
     console.log(error);
@@ -423,6 +445,9 @@ const updateSubTask = async (req, res) => {
     await recordActivity(req.user._id, "updated_subtask", "Task", taskId, {
       description: `updated subtask ${subTask.title}`,
     });
+
+    const io = getIO();
+    io.to(task.project.toString()).emit("task-updated", task);
 
     res.status(200).json(task);
   } catch (error) {
@@ -509,10 +534,12 @@ const addComment = async (req, res) => {
 
     // record activity
     await recordActivity(req.user._id, "added_comment", "Task", taskId, {
-      description: `added comment ${
-        text.substring(0, 50) + (text.length > 50 ? "..." : "")
-      }`,
+      description: `added comment ${text.substring(0, 50) + (text.length > 50 ? "..." : "")
+        }`,
     });
+
+    const io = getIO();
+    io.to(task.project.toString()).emit("task-updated", task);
 
     res.status(201).json(newComment);
   } catch (error) {
@@ -567,9 +594,8 @@ const watchTask = async (req, res) => {
 
     // record activity
     await recordActivity(req.user._id, "updated_task", "Task", taskId, {
-      description: `${
-        isWatching ? "stopped watching" : "started watching"
-      } task ${task.title}`,
+      description: `${isWatching ? "stopped watching" : "started watching"
+        } task ${task.title}`,
     });
 
     res.status(200).json(task);
@@ -617,10 +643,12 @@ const achievedTask = async (req, res) => {
 
     // record activity
     await recordActivity(req.user._id, "updated_task", "Task", taskId, {
-      description: `${isAchieved ? "unachieved" : "achieved"} task ${
-        task.title
-      }`,
+      description: `${isAchieved ? "unachieved" : "achieved"} task ${task.title
+        }`,
     });
+
+    const io = getIO();
+    io.to(task.project.toString()).emit("task-updated", task);
 
     res.status(200).json(task);
   } catch (error) {

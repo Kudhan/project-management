@@ -26,6 +26,7 @@
     "nodemailer": "^7.0.11",
     "react-router": "^7.6.2",
     "react-router-dom": "^7.6.2",
+    "socket.io": "^4.8.1",
     "zod": "^3.25.56",
     "zod-express-middleware": "^1.4.0"
   },
